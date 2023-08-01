@@ -1,15 +1,30 @@
-# import os
-# os.environ["SDL_VIDEODRIVER"]="x11"
-import pygame
-from pygame.locals import * # import all the modules from pygame
+import pygame, random
+from pygame.math import Vector2
+from pygame.locals import *
+
+class Fruit:
+    def __init__(self):
+        self.x = random.randint(0, cell_number - 1)
+        self.y = random.randint(0, cell_number - 1)
+        self.pos = Vector2(self.x, self.y)
+
+    def draw_fruit(self):
+        fruit_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
+        pygame.draw.rect(screen, (255,0,0), fruit_rect)
+
+class Snake:
+    def __init__(self):
+        pass
 
 clock = pygame.time.Clock()
 
 pygame.init() # initiates pygame
+cell_number = 20
+cell_size = 20
 
-WINDOW_SIZE = (400,400)
+WINDOW_SIZE = (cell_number * cell_size, cell_number * cell_size)
 
-screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32) # initiates the window
+screen = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 pygame.display.set_caption('Snake')
 
 head_color = (6,157,87)
@@ -28,6 +43,8 @@ def movement(direction):
         head_coord[1] -= head_size[0]
     if direction == 'down':
         head_coord[1] += head_size[0]
+
+fruit = Fruit()
 
 start_time = pygame.time.get_ticks()
 open = True
@@ -51,14 +68,14 @@ while open: # game loop
                 if previous_direc != 'up':
                     direction = directions[3]
     
-    screen.fill((137,245,195))
+    screen.fill((175, 215, 70))
+    fruit.draw_fruit()
     pygame.draw.rect(screen, head_color, pygame.Rect(head_coord,head_size))
 
     current_time = pygame.time.get_ticks()
     if current_time - start_time >= 100:
         movement(direction)
         start_time = current_time
-    
     
     pygame.display.update()
     clock.tick(60) # window framerate
