@@ -37,14 +37,19 @@ while open: # game loop
             pygame.quit()
             open = False
         if event.type == KEYDOWN:
+            previous_direc = direction
             if event.key == K_RIGHT:
-                direction = directions[0]
+                if previous_direc != 'left':
+                    direction = directions[0]
             if event.key == K_LEFT:
-                direction = directions[1]
+                if previous_direc != 'right':
+                    direction = directions[1]
             if event.key == K_UP:
-                direction = directions[2]
+                if previous_direc != 'down':
+                    direction = directions[2]
             if event.key == K_DOWN:
-                direction = directions[3]
+                if previous_direc != 'up':
+                    direction = directions[3]
     
     screen.fill((137,245,195))
     pygame.draw.rect(screen, head_color, pygame.Rect(head_coord,head_size))
