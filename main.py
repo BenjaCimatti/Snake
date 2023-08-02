@@ -27,6 +27,40 @@ class Snake:
         body_copy.insert(0, self.body[0] + self.direction)
         self.body = body_copy
 
+class Main:
+    def __init__(self):
+        self.snake = Snake()
+        self.fruit = Fruit()
+        self.start_time = pygame.time.get_ticks()
+    
+    def draw_elements(self):
+        self.fruit.draw_fruit()
+        self.snake.draw_snake()
+
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time >= 100:
+            self.snake.move_snake()
+            self.start_time = current_time
+            self.check_collision()
+            self.check_game_over()
+
+    def check_collision(self):
+        if self.snake.body[0] == self.fruit.pos:
+            self.fruit = Fruit()
+            tail = self.snake.body[-1]
+            self.snake.body.append(tail)
+            print(self.snake.body)
+
+    def check_game_over(self):
+        if not 0 <= self.snake.body[0].x <= cell_number:
+            self.game_over()
+        if not 0 <= self.snake.body[0].y <= cell_number:
+            self.game_over()
+
+    def game_over(self):
+        print('game_over')
+
 clock = pygame.time.Clock()
 
 pygame.init() # initiates pygame
@@ -38,10 +72,9 @@ WINDOW_SIZE = (cell_number * cell_size, cell_number * cell_size)
 screen = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 pygame.display.set_caption('Snake')
 
-fruit = Fruit()
-snake = Snake()
+main_game = Main()
 
-previous_direc = snake.direction
+previous_direc = main_game.snake.direction
 r_move = Vector2(1,0)
 l_move = Vector2(-1,0)
 u_move = Vector2(0,-1)
@@ -55,28 +88,24 @@ while open: # game loop
             pygame.quit()
             open = False
         if event.type == KEYDOWN:
-            previous_direc = snake.direction
+            previous_direc = main_game.snake.direction
             if event.key == K_RIGHT:
                 if previous_direc != l_move:
-                    snake.direction = r_move
+                    main_game.snake.direction = r_move
             if event.key == K_LEFT:
                 if previous_direc != r_move:
-                    snake.direction = l_move
+                    main_game.snake.direction = l_move
             if event.key == K_UP:
                 if previous_direc != d_move:
-                    snake.direction = u_move
+                    main_game.snake.direction = u_move
             if event.key == K_DOWN:
                 if previous_direc != u_move:
-                    snake.direction = d_move
+                    main_game.snake.direction = d_move
     
     screen.fill((175, 215, 70))
-    fruit.draw_fruit()
-    snake.draw_snake()
+    main_game.draw_elements()
 
-    current_time = pygame.time.get_ticks()
-    if current_time - start_time >= 100:
-        snake.move_snake()
-        start_time = current_time
-    
+    current_time = main_game.update()
+
     pygame.display.update()
     clock.tick(60) # window framerate
