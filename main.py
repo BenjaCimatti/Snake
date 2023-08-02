@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, sys
 from pygame.math import Vector2
 from pygame.locals import *
 
@@ -42,24 +42,25 @@ class Main:
         if current_time - self.start_time >= 100:
             self.snake.move_snake()
             self.start_time = current_time
-            self.check_collision()
+            self.check_fruit_collision()
             self.check_game_over()
 
-    def check_collision(self):
+    def check_fruit_collision(self):
         if self.snake.body[0] == self.fruit.pos:
             self.fruit = Fruit()
             tail = self.snake.body[-1]
             self.snake.body.append(tail)
-            print(self.snake.body)
 
     def check_game_over(self):
-        if not 0 <= self.snake.body[0].x <= cell_number:
+        if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number:
             self.game_over()
-        if not 0 <= self.snake.body[0].y <= cell_number:
-            self.game_over()
+        for block in self.snake.body[1:]:
+            if block == self.snake.body[0]:
+                self.game_over()
 
     def game_over(self):
-        print('game_over')
+        pygame.quit()
+        sys.exit()
 
 clock = pygame.time.Clock()
 
