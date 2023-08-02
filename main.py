@@ -14,7 +14,18 @@ class Fruit:
 
 class Snake:
     def __init__(self):
-        pass
+        self.body = [Vector2(5,10), Vector2(6,10), Vector2(7,10)]
+        self.direction = Vector2(0,1)
+    
+    def draw_snake(self):
+        for vector in self.body:
+            block_rect = pygame.Rect(int(vector.x * cell_size), int(vector.y * cell_size), cell_size, cell_size)
+            pygame.draw.rect(screen, (6,157,87), block_rect) 
+    
+    def move_snake(self):
+        body_copy = self.body[:-1]
+        body_copy.insert(0, self.body[0] + self.direction)
+        self.body = body_copy
 
 clock = pygame.time.Clock()
 
@@ -27,24 +38,8 @@ WINDOW_SIZE = (cell_number * cell_size, cell_number * cell_size)
 screen = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 pygame.display.set_caption('Snake')
 
-head_color = (6,157,87)
-head_size = (15,15)
-head_coord = [WINDOW_SIZE[0]/2 - head_size[0]/2, WINDOW_SIZE[1]/2 - head_size[1]/2]
-
-directions = ('right', 'left', 'up', 'down')
-direction = directions[3]
-
-def movement(direction):
-    if direction == 'right':
-        head_coord[0] += head_size[0]
-    if direction == 'left':
-        head_coord[0] -= head_size[0]
-    if direction == 'up':
-        head_coord[1] -= head_size[0]
-    if direction == 'down':
-        head_coord[1] += head_size[0]
-
 fruit = Fruit()
+snake = Snake()
 
 start_time = pygame.time.get_ticks()
 open = True
@@ -54,27 +49,22 @@ while open: # game loop
             pygame.quit()
             open = False
         if event.type == KEYDOWN:
-            previous_direc = direction
             if event.key == K_RIGHT:
-                if previous_direc != 'left':
-                    direction = directions[0]
+                snake.direction = Vector2(1,0)
             if event.key == K_LEFT:
-                if previous_direc != 'right':
-                    direction = directions[1]
+                snake.direction = Vector2(-1,0)
             if event.key == K_UP:
-                if previous_direc != 'down':
-                    direction = directions[2]
+                snake.direction = Vector2(0,-1)
             if event.key == K_DOWN:
-                if previous_direc != 'up':
-                    direction = directions[3]
+                snake.direction = Vector2(0,1)
     
     screen.fill((175, 215, 70))
     fruit.draw_fruit()
-    pygame.draw.rect(screen, head_color, pygame.Rect(head_coord,head_size))
+    snake.draw_snake()
 
     current_time = pygame.time.get_ticks()
     if current_time - start_time >= 100:
-        movement(direction)
+        snake.move_snake()
         start_time = current_time
     
     pygame.display.update()
