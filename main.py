@@ -41,6 +41,12 @@ pygame.display.set_caption('Snake')
 fruit = Fruit()
 snake = Snake()
 
+previous_direc = snake.direction
+r_move = Vector2(1,0)
+l_move = Vector2(-1,0)
+u_move = Vector2(0,-1)
+d_move = Vector2(0,1)
+
 start_time = pygame.time.get_ticks()
 open = True
 while open: # game loop
@@ -49,14 +55,19 @@ while open: # game loop
             pygame.quit()
             open = False
         if event.type == KEYDOWN:
+            previous_direc = snake.direction
             if event.key == K_RIGHT:
-                snake.direction = Vector2(1,0)
+                if previous_direc != l_move:
+                    snake.direction = r_move
             if event.key == K_LEFT:
-                snake.direction = Vector2(-1,0)
+                if previous_direc != r_move:
+                    snake.direction = l_move
             if event.key == K_UP:
-                snake.direction = Vector2(0,-1)
+                if previous_direc != d_move:
+                    snake.direction = u_move
             if event.key == K_DOWN:
-                snake.direction = Vector2(0,1)
+                if previous_direc != u_move:
+                    snake.direction = d_move
     
     screen.fill((175, 215, 70))
     fruit.draw_fruit()
