@@ -10,12 +10,13 @@ class Fruit:
 
     def draw_fruit(self):
         fruit_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
-        pygame.draw.rect(screen, (255,0,0), fruit_rect)
+        screen.blit(apple, fruit_rect)
+        
 
 class Snake:
     def __init__(self):
-        self.body = [Vector2(5,10), Vector2(6,10), Vector2(7,10)]
-        self.direction = Vector2(0,1)
+        self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
+        self.direction = Vector2(1,0)
     
     def draw_snake(self):
         for vector in self.body:
@@ -62,16 +63,16 @@ class Main:
         pygame.quit()
         sys.exit()
 
-clock = pygame.time.Clock()
+
 
 pygame.init() # initiates pygame
 cell_number = 20
 cell_size = 20
-
 WINDOW_SIZE = (cell_number * cell_size, cell_number * cell_size)
-
 screen = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
+clock = pygame.time.Clock()
 pygame.display.set_caption('Snake')
+apple = pygame.image.load('assets/apple.png').convert_alpha()
 
 main_game = Main()
 
