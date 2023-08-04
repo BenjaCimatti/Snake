@@ -12,7 +12,6 @@ class Fruit:
         fruit_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
         screen.blit(apple, fruit_rect)
         
-
 class Snake:
     def __init__(self):
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
@@ -63,11 +62,22 @@ class Main:
         pygame.quit()
         sys.exit()
 
+class Spritesheet:
+    def __init__(self, path):
+        self.path = path
+        self.spritesheet = pygame.image.load(path).convert_alpha()
 
+    def get_image(self, width, height, frame):
+        image = pygame.Surface((width, height)).convert_alpha()
+        frame_rect = pygame.Rect(frame * width, 0, width, height)
+        image.blit(self.spritesheet, (0,0), frame_rect)
+        image.set_colorkey('black')
 
+        return image
+    
 pygame.init() # initiates pygame
 cell_number = 20
-cell_size = 20
+cell_size = 16
 WINDOW_SIZE = (cell_number * cell_size, cell_number * cell_size)
 screen = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 clock = pygame.time.Clock()
@@ -83,11 +93,15 @@ u_move = Vector2(0,-1)
 d_move = Vector2(0,1)
 
 start_time = pygame.time.get_ticks()
+
+spritesheet = Spritesheet('assets/snake_sprite.png')
+frame_0 = spritesheet.get_image(cell_size, cell_size, 0)
+frame_1 = spritesheet.get_image(cell_size, cell_size, 1)
+
 open = True
 while open: # game loop
     for event in pygame.event.get(): # event loop
         if event.type == QUIT:
-            pygame.quit()
             open = False
         if event.type == KEYDOWN:
             previous_direc = main_game.snake.direction
@@ -105,9 +119,12 @@ while open: # game loop
                     main_game.snake.direction = d_move
     
     screen.fill((175, 215, 70))
+
     main_game.draw_elements()
 
     current_time = main_game.update()
 
     pygame.display.update()
     clock.tick(60) # window framerate
+
+pygame.quit()
