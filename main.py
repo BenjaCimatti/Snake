@@ -10,7 +10,7 @@ class Fruit:
 
     def draw_fruit(self):
         fruit_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
-        screen.blit(apple, fruit_rect)
+        field.blit(apple, fruit_rect)
         
 class Snake:
     def __init__(self):
@@ -26,40 +26,40 @@ class Snake:
 
             if index == 0:
                 if self.head == 'right':
-                    screen.blit(spritesheet.get_image(16, 16, 1), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 1), block_rect)
                 elif self.head == 'left':
-                    screen.blit(spritesheet.get_image(16, 16, 3), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 3), block_rect)
                 elif self.head == 'up':
-                    screen.blit(spritesheet.get_image(16, 16, 0), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 0), block_rect)
                 elif self.head == 'down':
-                    screen.blit(spritesheet.get_image(16, 16, 2), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 2), block_rect)
 
             elif index == len(self.body) - 1:
                 if prev_block.x > block.x:
-                    screen.blit(spritesheet.get_image(16, 16, 7), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 7), block_rect)
                 elif prev_block.x < block.x:
-                    screen.blit(spritesheet.get_image(16, 16, 9), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 9), block_rect)
                 elif prev_block.y > block.y:
-                    screen.blit(spritesheet.get_image(16, 16, 8), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 8), block_rect)
                 elif prev_block.y < block.y:
-                    screen.blit(spritesheet.get_image(16, 16, 6), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 6), block_rect)
             
             else:
                 next_block = self.body[index+1]
 
                 if (prev_block.x < block.x and next_block.y > block.y) or (next_block.x < block.x and prev_block.y > block.y):
-                    screen.blit(spritesheet.get_image(16, 16, 10), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 10), block_rect)
                 if (prev_block.x < block.x and next_block.y < block.y) or (next_block.x < block.x and prev_block.y < block.y):
-                    screen.blit(spritesheet.get_image(16, 16, 11), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 11), block_rect)
                 if (prev_block.x > block.x and next_block.y < block.y) or (next_block.x > block.x and prev_block.y < block.y):
-                    screen.blit(spritesheet.get_image(16, 16, 12), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 12), block_rect)
                 if (prev_block.x > block.x and next_block.y > block.y) or (next_block.x > block.x and prev_block.y > block.y):
-                    screen.blit(spritesheet.get_image(16, 16, 13), block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 13), block_rect)
 
                 if prev_block.y == block.y == next_block.y:
-                    screen.blit(spritesheet.get_image(16, 16, 5),block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 5),block_rect)
                 if prev_block.x == block.x == next_block.x:
-                    screen.blit(spritesheet.get_image(16, 16, 4),block_rect)
+                    field.blit(spritesheet.get_image(16, 16, 4),block_rect)
                 
     def update_head(self):
         head_relation = self.body[0] - self.body[1]
@@ -129,8 +129,12 @@ class Spritesheet:
 pygame.init() # initiates pygame
 cell_number = 20
 cell_size = 32
-WINDOW_SIZE = (cell_number * cell_size, cell_number * cell_size)
-screen = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
+FIELD_SIZE = (cell_number * cell_size, cell_number * cell_size)
+SCOREBOARD_SIZE = (FIELD_SIZE[1], 30)
+WINDOW_SIZE = (FIELD_SIZE[0], FIELD_SIZE[1] + SCOREBOARD_SIZE[1])
+window = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
+field = pygame.Surface(FIELD_SIZE)
+
 clock = pygame.time.Clock()
 pygame.display.set_caption('Snake')
 apple = pygame.image.load('assets/apple.png').convert_alpha()
@@ -166,9 +170,10 @@ while open: # game loop
                 if previous_direc != u_move:
                     main_game.snake.step = d_move
     
-    screen.fill((175, 215, 70))
+    field.fill((175, 215, 70))
 
     main_game.draw_elements()
+    window.blit(field, (0,30))
 
     current_time = main_game.update()
 
