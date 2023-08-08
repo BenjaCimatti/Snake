@@ -26,40 +26,40 @@ class Snake:
 
             if index == 0:
                 if self.head == 'right':
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 1), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 1), block_rect)
                 elif self.head == 'left':
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 3), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 3), block_rect)
                 elif self.head == 'up':
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 0), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 0), block_rect)
                 elif self.head == 'down':
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 2), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 2), block_rect)
 
             elif index == len(self.body) - 1:
                 if prev_block.x > block.x:
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 7), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 7), block_rect)
                 elif prev_block.x < block.x:
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 9), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 9), block_rect)
                 elif prev_block.y > block.y:
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 8), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 8), block_rect)
                 elif prev_block.y < block.y:
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 6), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 6), block_rect)
             
             else:
                 next_block = self.body[index+1]
 
                 if (prev_block.x < block.x and next_block.y > block.y) or (next_block.x < block.x and prev_block.y > block.y):
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 10), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 10), block_rect)
                 if (prev_block.x < block.x and next_block.y < block.y) or (next_block.x < block.x and prev_block.y < block.y):
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 11), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 11), block_rect)
                 if (prev_block.x > block.x and next_block.y < block.y) or (next_block.x > block.x and prev_block.y < block.y):
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 12), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 12), block_rect)
                 if (prev_block.x > block.x and next_block.y > block.y) or (next_block.x > block.x and prev_block.y > block.y):
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 13), block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 13), block_rect)
 
                 if prev_block.y == block.y == next_block.y:
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 5),block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 5),block_rect)
                 if prev_block.x == block.x == next_block.x:
-                    screen.blit(spritesheet.get_image(cell_size, cell_size, 4),block_rect)
+                    screen.blit(spritesheet.get_image(16, 16, 4),block_rect)
                 
     def update_head(self):
         head_relation = self.body[0] - self.body[1]
@@ -121,13 +121,14 @@ class Spritesheet:
         image = pygame.Surface((width, height)).convert_alpha()
         frame_rect = pygame.Rect(frame * width, 0, width, height)
         image.blit(self.spritesheet, (0,0), frame_rect)
+        image = pygame.transform.scale_by(image, 2)
         image.set_colorkey('black')
 
         return image
     
 pygame.init() # initiates pygame
 cell_number = 20
-cell_size = 16
+cell_size = 32
 WINDOW_SIZE = (cell_number * cell_size, cell_number * cell_size)
 screen = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 clock = pygame.time.Clock()
