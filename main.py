@@ -2,15 +2,20 @@ import pygame, random, sys
 from pygame.math import Vector2
 from pygame.locals import *
 
-class Fruit:
+class Fire:
     def __init__(self):
+        self.change_location()
+        self.image = pygame.image.load('assets/fire.png').convert_alpha()
+        self.image = pygame.transform.scale_by(self.image, 2)
+
+    def change_location(self):
         self.x = random.randint(0, cell_number - 1)
         self.y = random.randint(0, cell_number - 1)
         self.pos = Vector2(self.x, self.y)
 
-    def draw_fruit(self):
-        fruit_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
-        field.blit(apple, fruit_rect)
+    def draw_fire(self):
+        fire_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
+        field.blit(self.image, fire_rect)
         
 class Snake:
     def __init__(self):
@@ -70,7 +75,7 @@ class Snake:
 
 
     def move_snake(self):
-        if main_game.check_fruit_collision():
+        if main_game.check_fire_collision():
             self.body.insert(0, self.body[0] + self.step)
         else:
             body_copy = self.body[:-1]
@@ -80,24 +85,24 @@ class Snake:
 class Main:
     def __init__(self):
         self.snake = Snake()
-        self.fruit = Fruit()
+        self.fire = Fire()
         self.start_time = pygame.time.get_ticks()
     
     def draw_elements(self):
-        self.fruit.draw_fruit()
+        self.fire.draw_fire()
         self.snake.draw_snake()
 
     def update(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.start_time >= 100:
+        if current_time - self.start_time >= 300:
             self.snake.move_snake()
             #self.check_fruit_collision()
             self.check_game_over()
             self.start_time = current_time
 
-    def check_fruit_collision(self):
-        if self.snake.body[0] == self.fruit.pos:
-            self.fruit = Fruit()
+    def check_fire_collision(self):
+        if self.snake.body[0] == self.fire.pos:
+            self.fire.change_location()
             return True
         return False
 
@@ -137,7 +142,6 @@ field = pygame.Surface(FIELD_SIZE)
 
 clock = pygame.time.Clock()
 pygame.display.set_caption('Snake')
-apple = pygame.image.load('assets/apple.png').convert_alpha()
 
 main_game = Main()
 
@@ -170,7 +174,7 @@ while open: # game loop
                 if previous_direc != u_move:
                     main_game.snake.step = d_move
     
-    field.fill((175, 215, 70))
+    field.fill((84, 78, 104))
 
     main_game.draw_elements()
     window.blit(field, (0,30))
