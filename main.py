@@ -20,24 +20,40 @@ class Background:
 class Fire:
     def __init__(self):
         self.change_location()
-        self.image = pygame.image.load('assets/fire.png').convert_alpha()
-        self.image = pygame.transform.scale_by(self.image, 2)
+        self.spritesheet = Spritesheet('assets/fire.png')
+        self.sprite_list = []
+        self.frame = 0
+        self.load_sprite_list(12)
+        self.start_time = pygame.time.get_ticks()
 
     def change_location(self):
         self.x = random.randint(0, cell_number - 1)
         self.y = random.randint(0, cell_number - 1)
         self.pos = Vector2(self.x, self.y)
 
+    def load_sprite_list(self, step):
+        for i in range(step):
+            self.sprite_list.append(self.spritesheet.get_image(16, 16, i))
+
     def draw_fire(self):
         fire_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
-        field.blit(self.image, fire_rect)
+
+        field.blit(self.sprite_list[self.frame], fire_rect)
+
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time >= 100:
+            self.frame += 1
+            if self.frame >= len(self.sprite_list):
+                self.frame = 0
+            self.start_time = current_time
+        
         
 class Snake:
     def __init__(self):
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.step = Vector2(1,0)
         self.head = 'right'
-        self.spritesheet = Spritesheet('assets/snake_sprite.png')
+        self.spritesheet = Spritesheet('assets/snake_sprite_alt.png')
     
     def draw_snake(self):
         self.update_head()
@@ -91,7 +107,7 @@ class Snake:
 
 
     def move_snake(self):
-        if main_game.check_fire_collision():
+        if main_game.collision:
             self.body.insert(0, self.body[0] + self.step)
         else:
             body_copy = self.body[:-1]
@@ -104,6 +120,7 @@ class Main:
         self.fire = Fire()
         self.background = Background()
         self.start_time = pygame.time.get_ticks()
+        self.collision = False
     
     def draw_elements(self):
         self.background.draw_bg()
@@ -113,8 +130,8 @@ class Main:
     def update(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time >= 120:
+            self.collision = self.check_fire_collision()
             self.snake.move_snake()
-            #self.check_fruit_collision()
             self.check_game_over()
             self.start_time = current_time
 
@@ -168,8 +185,6 @@ r_move = Vector2(1,0)
 l_move = Vector2(-1,0)
 u_move = Vector2(0,-1)
 d_move = Vector2(0,1)
-
-start_time = pygame.time.get_ticks()
 
 open = True
 while open: # game loop
