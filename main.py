@@ -2,6 +2,21 @@ import pygame, random, sys
 from pygame.math import Vector2
 from pygame.locals import *
 
+class Background:
+    def __init__(self):
+        self.spritesheet = Spritesheet('assets/background_sprite.png')
+    
+    def draw_bg(self):
+        for row in range(cell_number):
+            for col in range(cell_number):
+                if col % 2 == 0:
+                    frame = self.spritesheet.get_image(16, 16, 0)
+                else:
+                    frame = self.spritesheet.get_image(16, 16, 1)
+                bg_rect = pygame.Rect(col * cell_size, row * cell_size, 16, 16)
+                field.blit(frame, bg_rect)
+
+
 class Fire:
     def __init__(self):
         self.change_location()
@@ -22,6 +37,7 @@ class Snake:
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.step = Vector2(1,0)
         self.head = 'right'
+        self.spritesheet = Spritesheet('assets/snake_sprite.png')
     
     def draw_snake(self):
         self.update_head()
@@ -31,40 +47,40 @@ class Snake:
 
             if index == 0:
                 if self.head == 'right':
-                    field.blit(spritesheet.get_image(16, 16, 1), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 1), block_rect)
                 elif self.head == 'left':
-                    field.blit(spritesheet.get_image(16, 16, 3), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 3), block_rect)
                 elif self.head == 'up':
-                    field.blit(spritesheet.get_image(16, 16, 0), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 0), block_rect)
                 elif self.head == 'down':
-                    field.blit(spritesheet.get_image(16, 16, 2), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 2), block_rect)
 
             elif index == len(self.body) - 1:
                 if prev_block.x > block.x:
-                    field.blit(spritesheet.get_image(16, 16, 7), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 7), block_rect)
                 elif prev_block.x < block.x:
-                    field.blit(spritesheet.get_image(16, 16, 9), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 9), block_rect)
                 elif prev_block.y > block.y:
-                    field.blit(spritesheet.get_image(16, 16, 8), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 8), block_rect)
                 elif prev_block.y < block.y:
-                    field.blit(spritesheet.get_image(16, 16, 6), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 6), block_rect)
             
             else:
                 next_block = self.body[index+1]
 
                 if (prev_block.x < block.x and next_block.y > block.y) or (next_block.x < block.x and prev_block.y > block.y):
-                    field.blit(spritesheet.get_image(16, 16, 10), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 10), block_rect)
                 if (prev_block.x < block.x and next_block.y < block.y) or (next_block.x < block.x and prev_block.y < block.y):
-                    field.blit(spritesheet.get_image(16, 16, 11), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 11), block_rect)
                 if (prev_block.x > block.x and next_block.y < block.y) or (next_block.x > block.x and prev_block.y < block.y):
-                    field.blit(spritesheet.get_image(16, 16, 12), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 12), block_rect)
                 if (prev_block.x > block.x and next_block.y > block.y) or (next_block.x > block.x and prev_block.y > block.y):
-                    field.blit(spritesheet.get_image(16, 16, 13), block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 13), block_rect)
 
                 if prev_block.y == block.y == next_block.y:
-                    field.blit(spritesheet.get_image(16, 16, 5),block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 5),block_rect)
                 if prev_block.x == block.x == next_block.x:
-                    field.blit(spritesheet.get_image(16, 16, 4),block_rect)
+                    field.blit(self.spritesheet.get_image(16, 16, 4),block_rect)
                 
     def update_head(self):
         head_relation = self.body[0] - self.body[1]
@@ -86,15 +102,17 @@ class Main:
     def __init__(self):
         self.snake = Snake()
         self.fire = Fire()
+        self.background = Background()
         self.start_time = pygame.time.get_ticks()
     
     def draw_elements(self):
+        self.background.draw_bg()
         self.fire.draw_fire()
         self.snake.draw_snake()
 
     def update(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.start_time >= 300:
+        if current_time - self.start_time >= 120:
             self.snake.move_snake()
             #self.check_fruit_collision()
             self.check_game_over()
@@ -132,7 +150,7 @@ class Spritesheet:
         return image
     
 pygame.init() # initiates pygame
-cell_number = 20
+cell_number = 15
 cell_size = 32
 FIELD_SIZE = (cell_number * cell_size, cell_number * cell_size)
 SCOREBOARD_SIZE = (FIELD_SIZE[1], 30)
@@ -152,7 +170,6 @@ u_move = Vector2(0,-1)
 d_move = Vector2(0,1)
 
 start_time = pygame.time.get_ticks()
-spritesheet = Spritesheet('assets/snake_sprite.png')
 
 open = True
 while open: # game loop
