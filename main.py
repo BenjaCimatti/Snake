@@ -50,18 +50,21 @@ class Background:
                 field.blit(frame, bg_rect)
 
 class Fire:
-    def __init__(self):
-        self.change_location()
+    def __init__(self, body):
+        self.change_location(body)
         self.spritesheet = Spritesheet('assets/fire.png')
         self.sprite_list = []
         self.frame = 0
         self.load_sprite_list(12)
         self.start_time = pygame.time.get_ticks()
 
-    def change_location(self):
-        self.x = random.randint(0, cell_number - 1)
-        self.y = random.randint(0, cell_number - 1)
-        self.pos = Vector2(self.x, self.y)
+    def exclude_randint(self, body):
+        vector = Vector2(random.randint(0, cell_number - 1), random.randint(0, cell_number - 1))
+        return self.exclude_randint(body) if vector in body else vector
+
+    def change_location(self, body):
+        self.pos = self.exclude_randint(body)
+        
 
     def load_sprite_list(self, step):
         for i in range(step):
@@ -148,7 +151,7 @@ class Snake:
 class Main:
     def __init__(self):
         self.snake = Snake()
-        self.fire = Fire()
+        self.fire = Fire(self.snake.body)
         self.background = Background()
         self.particle_system = ParticleSystem()
         self.start_time = pygame.time.get_ticks()
@@ -167,11 +170,10 @@ class Main:
             self.snake.move_snake()
             self.check_game_over()
             self.start_time = current_time
-            
 
     def check_fire_collision(self):
         if self.snake.body[0] == self.fire.pos:
-            self.fire.change_location()
+            self.fire.change_location(self.snake.body)
             return True
         return False
 
