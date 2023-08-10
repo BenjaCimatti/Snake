@@ -41,7 +41,7 @@ class Fire:
         field.blit(self.sprite_list[self.frame], fire_rect)
 
         current_time = pygame.time.get_ticks()
-        if current_time - self.start_time >= 100:
+        if current_time - self.start_time >= 150:
             self.frame += 1
             if self.frame >= len(self.sprite_list):
                 self.frame = 0
@@ -170,7 +170,7 @@ pygame.init() # initiates pygame
 cell_number = 15
 cell_size = 32
 FIELD_SIZE = (cell_number * cell_size, cell_number * cell_size)
-SCOREBOARD_SIZE = (FIELD_SIZE[1], 30)
+SCOREBOARD_SIZE = (FIELD_SIZE[1], 48)
 WINDOW_SIZE = (FIELD_SIZE[0], FIELD_SIZE[1] + SCOREBOARD_SIZE[1])
 window = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 field = pygame.Surface(FIELD_SIZE)
@@ -209,7 +209,7 @@ while open: # game loop
     field.fill((84, 78, 104))
 
     main_game.draw_elements()
-    window.blit(field, (0,30))
+    window.blit(field, (0, 48))
 
     current_time = main_game.update()
 
