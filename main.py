@@ -1,6 +1,8 @@
-import pygame, random, sys
+import pygame
+import random, sys
 from pygame.math import Vector2
 from pygame.locals import *
+from math import sin, cos
 
 class ParticleSystem:
     def __init__(self):
@@ -23,17 +25,33 @@ class ParticleSystem:
 class Particle:
     def __init__(self):
         self.pos = [0, random.randint(0, cell_number * cell_size)]
-        self.radius = random.randint(2, 4)
+        self.radius = random.randint(1, 2)
         self.x_speed = random.randint(3,6) / 10
         self.y_speed = 0
-        self.x_acceleration = -0.5
+        self.x_acceleration = 0
         self.y_acceleration = 0
+        self.glow_circle_radius = self.radius * 10
+        self.blur_radius = self.radius * 4
+
+    def draw_glow(self):
+        color = (90, 50, 40)
+        circle_surf = pygame.Surface((self.radius * 30, self.radius * 30))
+        pygame.draw.circle(circle_surf, color, (self.radius * 15, self.radius * 15), self.glow_circle_radius)
+        circle_surf.set_colorkey('black')
+        circle_surf = pygame.transform.gaussian_blur(circle_surf, self.blur_radius)
+        field.blit(circle_surf, (self.pos[0] - self.radius * 15, self.pos[1] - self.radius * 15), special_flags=BLEND_RGB_ADD)
 
     def draw_particle(self):
-        pygame.draw.circle(field, 'white', self.pos, self.radius)
+        color = (255, 170, 94)
+        pygame.draw.circle(field, color, self.pos, self.radius)
+        self.draw_glow()
+        
 
     def move_particle(self):
+        frec_multiplier = random.randint(1, 5) / 100 # 0.01 to 0.05
+        amp_multiplier = random.randint(5, 10) / 10 # 0.5 to 1
         self.pos[0] += self.x_speed
+        self.pos[1] += sin(self.pos[0] * frec_multiplier) * amp_multiplier
 
 class Background:
     def __init__(self):
