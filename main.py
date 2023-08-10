@@ -2,6 +2,39 @@ import pygame, random, sys
 from pygame.math import Vector2
 from pygame.locals import *
 
+class ParticleSystem:
+    def __init__(self):
+        self.particle_list = []
+        self.start_time = pygame.time.get_ticks()
+
+    def spawn_particles(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time >= 1500:
+            self.particle_list.append(Particle())
+            self.start_time = current_time
+
+    def draw_particles(self):
+        for i, particle in enumerate(self.particle_list):
+            if particle.pos[0] <= cell_number * cell_size + particle.radius:
+                particle.draw_particle()
+            else:
+                self.particle_list.pop(i)
+
+class Particle:
+    def __init__(self):
+        self.pos = [0, random.randint(0, cell_number * cell_size)]
+        self.radius = random.randint(2, 4)
+        self.x_speed = random.randint(3,6) / 10
+        self.y_speed = 0
+        self.x_acceleration = -0.5
+        self.y_acceleration = 0
+
+    def draw_particle(self):
+        pygame.draw.circle(field, 'white', self.pos, self.radius)
+
+    def move_particle(self):
+        self.pos[0] += self.x_speed
+
 class Background:
     def __init__(self):
         self.spritesheet = Spritesheet('assets/background_sprite.png')
@@ -15,7 +48,6 @@ class Background:
                     frame = self.spritesheet.get_image(16, 16, 1)
                 bg_rect = pygame.Rect(col * cell_size, row * cell_size, 16, 16)
                 field.blit(frame, bg_rect)
-
 
 class Fire:
     def __init__(self):
@@ -46,8 +78,7 @@ class Fire:
             if self.frame >= len(self.sprite_list):
                 self.frame = 0
             self.start_time = current_time
-        
-        
+         
 class Snake:
     def __init__(self):
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
@@ -119,6 +150,7 @@ class Main:
         self.snake = Snake()
         self.fire = Fire()
         self.background = Background()
+        self.particle_system = ParticleSystem()
         self.start_time = pygame.time.get_ticks()
         self.collision = False
     
@@ -126,6 +158,7 @@ class Main:
         self.background.draw_bg()
         self.fire.draw_fire()
         self.snake.draw_snake()
+        self.particle_system.draw_particles()
 
     def update(self):
         current_time = pygame.time.get_ticks()
@@ -134,6 +167,7 @@ class Main:
             self.snake.move_snake()
             self.check_game_over()
             self.start_time = current_time
+            
 
     def check_fire_collision(self):
         if self.snake.body[0] == self.fire.pos:
@@ -208,7 +242,12 @@ while open: # game loop
     
     field.fill((84, 78, 104))
 
+    main_game.particle_system.spawn_particles()
     main_game.draw_elements()
+    
+    for particle in main_game.particle_system.particle_list:
+        particle.move_particle()
+
     window.blit(field, (0, 48))
 
     current_time = main_game.update()
