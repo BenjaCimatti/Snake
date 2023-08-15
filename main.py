@@ -12,26 +12,27 @@ class ParticleSystem:
     def spawn_particles(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time >= 1500:
-            self.particle_list.append(Particle())
+            if len(self.particle_list) <= 10:
+                self.particle_list.append(Particle())
             self.start_time = current_time
 
     def draw_particles(self):
         for i, particle in enumerate(self.particle_list):
-            if particle.pos[0] <= cell_number * cell_size + particle.radius:
+            if particle.pos[0] <= cell_number * cell_size + particle.glow_circle_radius + 10:
                 particle.draw_particle()
             else:
                 self.particle_list.pop(i)
 
 class Particle:
     def __init__(self):
-        self.pos = [0, random.randint(0, cell_number * cell_size)]
         self.radius = random.randint(1, 2)
         self.x_speed = random.randint(3,6) / 10
         self.y_speed = 0
         self.x_acceleration = 0
         self.y_acceleration = 0
-        self.glow_circle_radius = self.radius * 10
-        self.blur_radius = self.radius * 4
+        self.glow_circle_radius = self.radius * 6
+        self.blur_radius = int(self.radius * 5.5)
+        self.pos = [int(-self.glow_circle_radius * 1.2), random.randint(0, cell_number * cell_size)]
 
     def draw_glow(self):
         color = (90, 50, 40)
