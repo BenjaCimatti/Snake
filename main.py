@@ -75,6 +75,7 @@ class Fire:
         self.frame = 0
         self.load_sprite_list(12)
         self.start_time = pygame.time.get_ticks()
+        #self.glow_motion = ('up','down','down','up')
 
     def exclude_randint(self, body):
         vector = Vector2(random.randint(0, cell_number - 1), random.randint(0, cell_number - 1))
@@ -82,16 +83,25 @@ class Fire:
 
     def change_location(self, body):
         self.pos = self.exclude_randint(body)
-        
+        self.glow_pos = self.pos
 
     def load_sprite_list(self, step):
         for i in range(step):
             self.sprite_list.append(self.spritesheet.get_image(16, 16, i))
 
+    def draw_glow(self):
+        color = (90, 50, 40)
+        circle_surf = pygame.Surface((cell_size * 2, cell_size * 2))
+        pygame.draw.circle(circle_surf, color, (cell_size, cell_size), cell_size//1.5)
+        circle_surf.set_colorkey('black')
+        circle_surf = pygame.transform.gaussian_blur(circle_surf, cell_size//2)
+        field.blit(circle_surf, (self.glow_pos.x * cell_size - cell_size / 2, self.glow_pos.y * cell_size - cell_size / 2), special_flags=BLEND_RGB_ADD)
+
     def draw_fire(self):
         fire_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
 
         field.blit(self.sprite_list[self.frame], fire_rect)
+        self.draw_glow()
 
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time >= 150:
