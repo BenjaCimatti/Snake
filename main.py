@@ -75,7 +75,8 @@ class Fire:
         self.frame = 0
         self.load_sprite_list(12)
         self.start_time = pygame.time.get_ticks()
-        #self.glow_motion = ('up','down','down','up')
+        self.glow_motion = ('center','up','center','down')
+        self.motion_counter = -1
 
     def exclude_randint(self, body):
         vector = Vector2(random.randint(0, cell_number - 1), random.randint(0, cell_number - 1))
@@ -92,10 +93,18 @@ class Fire:
     def draw_glow(self):
         color = (90, 50, 40)
         circle_surf = pygame.Surface((cell_size * 2, cell_size * 2))
-        pygame.draw.circle(circle_surf, color, (cell_size, cell_size), cell_size//1.5)
+        pygame.draw.circle(circle_surf, color, (cell_size, cell_size), cell_size//1.8)
         circle_surf.set_colorkey('black')
         circle_surf = pygame.transform.gaussian_blur(circle_surf, cell_size//2)
-        field.blit(circle_surf, (self.glow_pos.x * cell_size - cell_size / 2, self.glow_pos.y * cell_size - cell_size / 2), special_flags=BLEND_RGB_ADD)
+
+        x_coord = self.glow_pos.x * cell_size - cell_size / 2
+        y_coord = self.glow_pos.y * cell_size - cell_size / 2
+        if self.glow_motion[self.motion_counter] == 'center':
+            field.blit(circle_surf, (x_coord, y_coord), special_flags=BLEND_RGB_ADD)
+        if self.glow_motion[self.motion_counter] == 'up':
+            field.blit(circle_surf, (x_coord - 1, y_coord - 1), special_flags=BLEND_RGB_ADD)
+        if self.glow_motion[self.motion_counter] == 'down':
+            field.blit(circle_surf, (x_coord + 1, y_coord + 1), special_flags=BLEND_RGB_ADD)
 
     def draw_fire(self):
         fire_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
@@ -105,6 +114,9 @@ class Fire:
 
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time >= 150:
+            self.motion_counter += 1
+            if self.motion_counter >= len(self.glow_motion):
+                self.motion_counter = 0
             self.frame += 1
             if self.frame >= len(self.sprite_list):
                 self.frame = 0
