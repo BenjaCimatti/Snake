@@ -2,18 +2,23 @@ import pygame
 import random, sys
 from pygame.math import Vector2
 from pygame.locals import *
-from math import sin, cos
+from math import sin, cos, pi
 
 class ParticleSystem:
     def __init__(self):
         self.particle_list = []
         self.start_time = pygame.time.get_ticks()
+        self.is_alt_color = False
 
     def spawn_particles(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time >= 1500:
-            if len(self.particle_list) <= 10:
-                self.particle_list.append(Particle())
+            if len(self.particle_list) <= 12:
+                self.particle_list.append(Particle(self.is_alt_color))
+                if self.is_alt_color:
+                    self.is_alt_color = False
+                else:
+                    self.is_alt_color = True
             self.start_time = current_time
 
     def draw_particles(self):
@@ -24,15 +29,21 @@ class ParticleSystem:
                 self.particle_list.pop(i)
 
 class Particle:
-    def __init__(self):
+    def __init__(self, is_alt_color):
         self.radius = random.randint(1, 2)
-        self.x_speed = random.randint(3,6) / 10
+        #self.x_speed = random.randint(3,6) / 10
+        self.x_speed = 0.4
         self.y_speed = 0
         self.x_acceleration = 0
         self.y_acceleration = 0
         self.glow_circle_radius = self.radius * 6
         self.blur_radius = int(self.radius * 5.5)
-        self.pos = [int(-self.glow_circle_radius * 1.2), random.randint(0, cell_number * cell_size)]
+        self.x_offset = random.randint(0, (cell_number * cell_size)/2)
+        self.frec = random.randint(20,100) / 10000 #0.0068
+        self.amp = (cell_number * cell_size) / 2.5
+        self.is_alt_color = is_alt_color
+        x_pos = int(-self.glow_circle_radius * 1.2)
+        self.pos = [x_pos, self.trajectory(x_pos)]
 
     def draw_glow(self):
         color = (90, 50, 40)
@@ -43,16 +54,21 @@ class Particle:
         field.blit(circle_surf, (self.pos[0] - self.radius * 15, self.pos[1] - self.radius * 15), special_flags=BLEND_RGB_ADD)
 
     def draw_particle(self):
-        color = (255, 170, 94)
-        pygame.draw.circle(field, color, self.pos, self.radius)
+        color_1 = (255, 170, 94)
+        color_2 = (208, 129, 89)
+        if not self.is_alt_color:
+            pygame.draw.circle(field, color_1, self.pos, self.radius)
+        else:
+            pygame.draw.circle(field, color_2, self.pos, self.radius)
         self.draw_glow()
         
+    def trajectory(self, x_value):
+        y_value = cos(x_value * self.frec - self.x_offset) * self.amp + (cell_number * cell_size) / 2
+        return y_value
 
     def move_particle(self):
-        frec_multiplier = random.randint(1, 5) / 100 # 0.01 to 0.05
-        amp_multiplier = random.randint(5, 10) / 10 # 0.5 to 1
         self.pos[0] += self.x_speed
-        self.pos[1] += sin(self.pos[0] * frec_multiplier) * amp_multiplier
+        self.pos[1] = self.trajectory(self.pos[0])
 
 class Background:
     def __init__(self):
