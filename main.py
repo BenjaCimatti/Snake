@@ -31,7 +31,6 @@ class ParticleSystem:
 class Particle:
     def __init__(self, is_alt_color):
         self.radius = random.randint(1, 2)
-        #self.x_speed = random.randint(3,6) / 10
         self.x_speed = 0.4
         self.y_speed = 0
         self.x_acceleration = 0
@@ -86,20 +85,26 @@ class Background:
 
 class Fire:
     def __init__(self, body):
+        self.glow_radius = 0
         self.change_location(body)
         self.spritesheet = Spritesheet('assets/fire.png')
         self.sprite_list = []
-        self.frame = 0
+        self.frame_num = 0
         self.load_sprite_list(12)
         self.start_time = pygame.time.get_ticks()
         self.glow_motion = ('center','up','center','down')
-        self.motion_counter = -1
+        self.motion_counter = 0
 
     def exclude_randint(self, body):
         vector = Vector2(random.randint(0, cell_number - 1), random.randint(0, cell_number - 1))
         return self.exclude_randint(body) if vector in body else vector
+    
+    def spawn_animation(self):
+        if self.glow_radius <= cell_size // 1.8:
+            self.glow_radius += 0.9
 
     def change_location(self, body):
+        self.glow_radius = 0
         self.pos = self.exclude_randint(body)
         self.glow_pos = self.pos
 
@@ -110,7 +115,7 @@ class Fire:
     def draw_glow(self):
         color = (90, 50, 40)
         circle_surf = pygame.Surface((cell_size * 2, cell_size * 2))
-        pygame.draw.circle(circle_surf, color, (cell_size, cell_size), cell_size//1.8)
+        pygame.draw.circle(circle_surf, color, (cell_size, cell_size), self.glow_radius)
         circle_surf.set_colorkey('black')
         circle_surf = pygame.transform.gaussian_blur(circle_surf, cell_size//2)
 
@@ -119,14 +124,15 @@ class Fire:
         if self.glow_motion[self.motion_counter] == 'center':
             field.blit(circle_surf, (x_coord, y_coord), special_flags=BLEND_RGB_ADD)
         if self.glow_motion[self.motion_counter] == 'up':
-            field.blit(circle_surf, (x_coord - 1, y_coord - 1), special_flags=BLEND_RGB_ADD)
+            field.blit(circle_surf, (x_coord, y_coord - 1), special_flags=BLEND_RGB_ADD)
         if self.glow_motion[self.motion_counter] == 'down':
-            field.blit(circle_surf, (x_coord + 1, y_coord + 1), special_flags=BLEND_RGB_ADD)
+            field.blit(circle_surf, (x_coord, y_coord + 1), special_flags=BLEND_RGB_ADD)
 
     def draw_fire(self):
+        self.spawn_animation()
         fire_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
-
-        field.blit(self.sprite_list[self.frame], fire_rect)
+        frame = self.sprite_list[self.frame_num]
+        field.blit(frame, fire_rect)
         self.draw_glow()
 
         current_time = pygame.time.get_ticks()
@@ -134,9 +140,9 @@ class Fire:
             self.motion_counter += 1
             if self.motion_counter >= len(self.glow_motion):
                 self.motion_counter = 0
-            self.frame += 1
-            if self.frame >= len(self.sprite_list):
-                self.frame = 0
+            self.frame_num += 1
+            if self.frame_num >= len(self.sprite_list):
+                self.frame_num = 0
             self.start_time = current_time
          
 class Snake:
