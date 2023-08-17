@@ -211,6 +211,13 @@ class Snake:
             body_copy.insert(0, self.body[0] + self.step)
             self.body = body_copy
 
+class Vignette:
+    def __init__(self):
+        self.img = pygame.image.load('assets/vignette.png').convert_alpha()
+    
+    def draw_vignette(self):
+        field.blit(self.img, (0,0))
+
 class Main:
     def __init__(self):
         self.snake = Snake()
@@ -219,12 +226,14 @@ class Main:
         self.particle_system = ParticleSystem()
         self.start_time = pygame.time.get_ticks()
         self.collision = False
-    
+        self.vignette = Vignette()
+
     def draw_elements(self):
         self.background.draw_bg()
         self.fire.draw_fire()
         self.snake.draw_snake()
         self.particle_system.draw_particles()
+        self.vignette.draw_vignette()
 
     def update(self):
         current_time = pygame.time.get_ticks()
@@ -273,6 +282,7 @@ SCOREBOARD_SIZE = (FIELD_SIZE[1], 48)
 WINDOW_SIZE = (FIELD_SIZE[0], FIELD_SIZE[1] + SCOREBOARD_SIZE[1])
 window = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 field = pygame.Surface(FIELD_SIZE)
+scoreboard = pygame.Surface(SCOREBOARD_SIZE)
 
 clock = pygame.time.Clock()
 pygame.display.set_caption('Snake')
@@ -306,6 +316,7 @@ while open: # game loop
                     main_game.snake.step = d_move
     
     field.fill((84, 78, 104))
+    scoreboard.fill('blue')
 
     main_game.particle_system.spawn_particles()
     main_game.draw_elements()
@@ -314,6 +325,7 @@ while open: # game loop
         particle.move_particle()
 
     window.blit(field, (0, 48))
+    window.blit(scoreboard, (0, 0))
 
     current_time = main_game.update()
 
