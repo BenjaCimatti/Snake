@@ -2,7 +2,7 @@ import pygame
 import random, sys
 from pygame.math import Vector2
 from pygame.locals import *
-from math import sin, cos, pi
+from math import cos
 
 class ParticleSystem:
     def __init__(self):
@@ -38,7 +38,7 @@ class Particle:
         self.glow_circle_radius = self.radius * 6
         self.blur_radius = int(self.radius * 5.5)
         self.x_offset = random.randint(0, (cell_number * cell_size)/2)
-        self.frec = random.randint(20,100) / 10000 #0.0068
+        self.frec = random.randint(20,100) / 10000
         self.amp = (cell_number * cell_size) / 2.5
         self.is_alt_color = is_alt_color
         x_pos = int(-self.glow_circle_radius * 1.2)
@@ -74,9 +74,15 @@ class Background:
         self.spritesheet = Spritesheet('assets/background_sprite.png')
     
     def draw_bg(self):
+        counter = 2
         for row in range(cell_number):
             for col in range(cell_number):
-                if col % 2 == 0:
+                if row == 0:
+                    frame = self.spritesheet.get_image(16, 16, counter)
+                    counter += 1
+                    if counter >= 5:
+                        counter = 2
+                elif col % 2 == 0:
                     frame = self.spritesheet.get_image(16, 16, 0)
                 else:
                     frame = self.spritesheet.get_image(16, 16, 1)
@@ -214,9 +220,15 @@ class Snake:
 class Vignette:
     def __init__(self):
         self.img = pygame.image.load('assets/vignette.png').convert_alpha()
-    
-    def draw_vignette(self):
+        self.img.set_alpha(125)
+        self.img2 = pygame.Surface((SCOREBOARD_SIZE[0], SCOREBOARD_SIZE[1]))
+        self.img2.set_alpha(35)
+
+    def draw_vignette_field(self):
         field.blit(self.img, (0,0))
+
+    def draw_vignette_scoreboard(self):
+        scoreboard.blit(self.img2, (0,0))
 
 class Main:
     def __init__(self):
@@ -226,6 +238,7 @@ class Main:
         self.particle_system = ParticleSystem()
         self.start_time = pygame.time.get_ticks()
         self.collision = False
+        self.scoreboard = Scoreboard()
         self.vignette = Vignette()
 
     def draw_elements(self):
@@ -233,7 +246,9 @@ class Main:
         self.fire.draw_fire()
         self.snake.draw_snake()
         self.particle_system.draw_particles()
-        self.vignette.draw_vignette()
+        self.scoreboard.draw_scoreboard()
+        self.vignette.draw_vignette_field()
+        self.vignette.draw_vignette_scoreboard()
 
     def update(self):
         current_time = pygame.time.get_ticks()
@@ -273,12 +288,19 @@ class Spritesheet:
         image.set_colorkey('black')
 
         return image
+
+class Scoreboard:
+    def __init__(self):
+        self.bg = (44, 39, 52)
     
+    def draw_scoreboard(self):
+        scoreboard.fill(self.bg)
+
 pygame.init() # initiates pygame
 cell_number = 15
 cell_size = 32
 FIELD_SIZE = (cell_number * cell_size, cell_number * cell_size)
-SCOREBOARD_SIZE = (FIELD_SIZE[1], 48)
+SCOREBOARD_SIZE = (FIELD_SIZE[1], 96)
 WINDOW_SIZE = (FIELD_SIZE[0], FIELD_SIZE[1] + SCOREBOARD_SIZE[1])
 window = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 field = pygame.Surface(FIELD_SIZE)
@@ -302,29 +324,27 @@ while open: # game loop
             open = False
         if event.type == KEYDOWN:
             previous_direc = main_game.snake.step
-            if event.key == K_RIGHT:
+            if event.key == K_RIGHT or event.key == K_d:
                 if previous_direc != l_move:
                     main_game.snake.step = r_move
-            if event.key == K_LEFT:
+            if event.key == K_LEFT or event.key == K_a:
                 if previous_direc != r_move:
                     main_game.snake.step = l_move
-            if event.key == K_UP:
+            if event.key == K_UP or event.key == K_w:
                 if previous_direc != d_move:
                     main_game.snake.step = u_move
-            if event.key == K_DOWN:
+            if event.key == K_DOWN or event.key == K_s:
                 if previous_direc != u_move:
                     main_game.snake.step = d_move
-    
-    field.fill((84, 78, 104))
-    scoreboard.fill('blue')
 
+    scoreboard.fill('white')
     main_game.particle_system.spawn_particles()
     main_game.draw_elements()
     
     for particle in main_game.particle_system.particle_list:
         particle.move_particle()
 
-    window.blit(field, (0, 48))
+    window.blit(field, (0, 96))
     window.blit(scoreboard, (0, 0))
 
     current_time = main_game.update()
