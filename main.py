@@ -86,7 +86,7 @@ class Background:
                     frame = self.spritesheet.get_image(16, 16, 0)
                 else:
                     frame = self.spritesheet.get_image(16, 16, 1)
-                bg_rect = pygame.Rect(col * cell_size, row * cell_size, 16, 16)
+                bg_rect = pygame.Rect(col * cell_size, row * cell_size, 32, 32)
                 field.blit(frame, bg_rect)
 
 class Fire:
@@ -238,7 +238,7 @@ class Main:
         self.particle_system = ParticleSystem()
         self.start_time = pygame.time.get_ticks()
         self.collision = False
-        self.scoreboard = Scoreboard()
+        self.scoreboard = Scoreboard(SCOREBOARD_SIZE, font)
         self.vignette = Vignette()
 
     def draw_elements(self):
@@ -246,7 +246,7 @@ class Main:
         self.fire.draw_fire()
         self.snake.draw_snake()
         self.particle_system.draw_particles()
-        self.scoreboard.draw_scoreboard()
+        self.scoreboard.draw_scoreboard(len(self.snake.body) - 3)
         self.vignette.draw_vignette_field()
         self.vignette.draw_vignette_scoreboard()
 
@@ -290,11 +290,24 @@ class Spritesheet:
         return image
 
 class Scoreboard:
-    def __init__(self):
+    def __init__(self, scoreboard_size, font):
+        self.size_x = scoreboard_size[0]
+        self.size_y = scoreboard_size[1]
         self.bg = (44, 39, 52)
-    
-    def draw_scoreboard(self):
+        self.score_frame = pygame.image.load('assets/score_frame.png')
+        self.score_frame_rect = self.score_frame.get_rect()
+        self.score_frame_rect.center = (self.size_x / 2, self.size_y / 2)
+        self.font = font
+
+    def draw_scoreboard(self, score):
         scoreboard.fill(self.bg)
+        scoreboard.blit(self.score_frame, self.score_frame_rect)
+        score_render = self.font.render(str(score), True, (255,236,214))
+        score_rect = score_render.get_rect()
+        score_rect.center = self.score_frame_rect.center
+        scoreboard.blit(score_render, score_rect)
+
+
 
 pygame.init() # initiates pygame
 cell_number = 15
@@ -305,6 +318,7 @@ WINDOW_SIZE = (FIELD_SIZE[0], FIELD_SIZE[1] + SCOREBOARD_SIZE[1])
 window = pygame.display.set_mode(WINDOW_SIZE) # initiates the window
 field = pygame.Surface(FIELD_SIZE)
 scoreboard = pygame.Surface(SCOREBOARD_SIZE)
+font = pygame.font.Font('font/Retro Gaming.ttf', 25)
 
 clock = pygame.time.Clock()
 pygame.display.set_caption('Snake')
