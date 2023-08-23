@@ -156,7 +156,7 @@ class Snake:
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.step = Vector2(1,0)
         self.head = 'right'
-        self.spritesheet = Spritesheet('assets/snake_sprite_alt.png')
+        self.spritesheet = Spritesheet('assets/snake_sprite.png')
     
     def draw_snake(self):
         self.update_head()
@@ -306,8 +306,6 @@ class Scoreboard:
         score_rect = score_render.get_rect()
         score_rect.center = self.score_frame_rect.center
         scoreboard.blit(score_render, score_rect)
-
-
 
 pygame.init() # initiates pygame
 cell_number = 15
