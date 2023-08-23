@@ -242,17 +242,17 @@ class Main:
         self.vignette = Vignette()
 
     def draw_elements(self):
+        self.scoreboard.draw_scoreboard(len(self.snake.body) - 3)
+        self.vignette.draw_vignette_scoreboard()
         self.background.draw_bg()
         self.fire.draw_fire()
         self.snake.draw_snake()
         self.particle_system.draw_particles()
-        self.scoreboard.draw_scoreboard(len(self.snake.body) - 3)
         self.vignette.draw_vignette_field()
-        self.vignette.draw_vignette_scoreboard()
 
     def update(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.start_time >= 120:
+        if current_time - self.start_time >= 80:
             self.collision = self.check_fire_collision()
             self.snake.move_snake()
             self.check_game_over()
@@ -308,6 +308,9 @@ class Scoreboard:
         scoreboard.blit(score_render, score_rect)
 
 pygame.init() # initiates pygame
+#pygame.mixer.init(44100,-16,2, 1024)
+pygame.mixer.music.load('sound/bg_music.wav')
+pygame.mixer.music.play(-1)
 cell_number = 15
 cell_size = 32
 FIELD_SIZE = (cell_number * cell_size, cell_number * cell_size)
