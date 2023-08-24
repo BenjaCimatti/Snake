@@ -240,6 +240,9 @@ class Main:
         self.collision = False
         self.scoreboard = Scoreboard(SCOREBOARD_SIZE, font)
         self.vignette = Vignette()
+        self.pickup_fire_sound = pygame.mixer.Sound('sound/pickup_sfx.wav')
+        self.field_music = pygame.mixer.music.load('sound/bg_music.wav')
+        pygame.mixer.music.play(-1)
 
     def draw_elements(self):
         self.scoreboard.draw_scoreboard(len(self.snake.body) - 3)
@@ -252,7 +255,7 @@ class Main:
 
     def update(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.start_time >= 80:
+        if current_time - self.start_time >= 100:
             self.collision = self.check_fire_collision()
             self.snake.move_snake()
             self.check_game_over()
@@ -260,6 +263,7 @@ class Main:
 
     def check_fire_collision(self):
         if self.snake.body[0] == self.fire.pos:
+            self.pickup_fire_sound.play()
             self.fire.change_location(self.snake.body)
             return True
         return False
@@ -308,9 +312,7 @@ class Scoreboard:
         scoreboard.blit(score_render, score_rect)
 
 pygame.init() # initiates pygame
-#pygame.mixer.init(44100,-16,2, 1024)
-pygame.mixer.music.load('sound/bg_music.wav')
-pygame.mixer.music.play(-1)
+pygame.mixer.pre_init(44100,-16,2, 512)
 cell_number = 15
 cell_size = 32
 FIELD_SIZE = (cell_number * cell_size, cell_number * cell_size)
