@@ -3,6 +3,7 @@ import random, sys
 from pygame.math import Vector2
 from pygame.locals import *
 from math import cos
+import time
 
 class ParticleSystem:
     def __init__(self):
@@ -354,7 +355,6 @@ while open: # game loop
                 if previous_direc != u_move:
                     main_game.snake.step = d_move
 
-    scoreboard.fill('white')
     main_game.particle_system.spawn_particles()
     main_game.draw_elements()
     
