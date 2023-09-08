@@ -242,7 +242,7 @@ class Main:
         self.scoreboard = Scoreboard(SCOREBOARD_SIZE, font)
         self.vignette = Vignette()
         self.pickup_fire_sound = pygame.mixer.Sound('sound/pickup_sfx.wav')
-        self.field_music = pygame.mixer.music.load('sound/bg_music.wav')
+        self.field_music = pygame.mixer.music.load('sound/field_music.wav')
         pygame.mixer.music.play(-1)
 
     def draw_elements(self):
@@ -312,6 +312,25 @@ class Scoreboard:
         score_rect.center = self.score_frame_rect.center
         scoreboard.blit(score_render, score_rect)
 
+class State:
+    def __init__(self):
+        self.states = ('main_menu', 'running', 'pause', 'game_over')
+        self.current_state = self.states[1]
+    
+    def is_running(self):
+        return self.current_state == self.states[1]    
+
+    def is_pause(self):
+        return self.current_state == self.states[2]
+
+class Pause:
+    def __init__(self):
+        self.black_surf = pygame.Surface((WINDOW_SIZE[0], WINDOW_SIZE[1]))
+        self.black_surf.set_alpha(80)
+
+    def draw_elements(self):
+        window.blit(self.black_surf, (0,0))
+
 pygame.init() # initiates pygame
 pygame.mixer.pre_init(44100,-16,2, 512)
 cell_number = 15
@@ -327,7 +346,9 @@ font = pygame.font.Font('font/Retro Gaming.ttf', 25)
 clock = pygame.time.Clock()
 pygame.display.set_caption('Snake')
 
+game_state = State()
 main_game = Main()
+pause_menu = Pause()
 
 previous_direc = main_game.snake.step
 r_move = Vector2(1,0)
@@ -342,18 +363,26 @@ while open: # game loop
             open = False
         if event.type == KEYDOWN:
             previous_direc = main_game.snake.step
-            if event.key == K_RIGHT or event.key == K_d:
-                if previous_direc != l_move:
-                    main_game.snake.step = r_move
-            if event.key == K_LEFT or event.key == K_a:
-                if previous_direc != r_move:
-                    main_game.snake.step = l_move
-            if event.key == K_UP or event.key == K_w:
-                if previous_direc != d_move:
-                    main_game.snake.step = u_move
-            if event.key == K_DOWN or event.key == K_s:
-                if previous_direc != u_move:
-                    main_game.snake.step = d_move
+            if game_state.is_running():
+                if event.key == K_RIGHT or event.key == K_d:
+                    if previous_direc != l_move:
+                        main_game.snake.step = r_move
+                if event.key == K_LEFT or event.key == K_a:
+                    if previous_direc != r_move:
+                        main_game.snake.step = l_move
+                if event.key == K_UP or event.key == K_w:
+                    if previous_direc != d_move:
+                        main_game.snake.step = u_move
+                if event.key == K_DOWN or event.key == K_s:
+                    if previous_direc != u_move:
+                        main_game.snake.step = d_move
+            if event.key == K_ESCAPE:
+                if game_state.is_running():
+                    game_state.current_state = game_state.states[2]
+                    pygame.mixer.music.pause()
+                elif game_state.is_pause():
+                    game_state.current_state = game_state.states[1]
+                    pygame.mixer.music.unpause()
 
     main_game.particle_system.spawn_particles()
     main_game.draw_elements()
@@ -364,7 +393,11 @@ while open: # game loop
     window.blit(field, (0, 96))
     window.blit(scoreboard, (0, 0))
 
-    current_time = main_game.update()
+    if game_state.is_running():
+        current_time = main_game.update()
+    
+    if game_state.is_pause():
+        pause_menu.draw_elements()
 
     pygame.display.update()
     clock.tick(60) # window framerate
