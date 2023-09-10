@@ -3,7 +3,6 @@ import random, sys
 from pygame.math import Vector2
 from pygame.locals import *
 from math import cos
-import time
 
 class ParticleSystem:
     def __init__(self):
@@ -325,11 +324,30 @@ class State:
 
 class Pause:
     def __init__(self):
+        self.pause_sfx = pygame.mixer.Sound('sound/pause_sfx.wav')
+        self.unpause_sfx = pygame.mixer.Sound('sound/unpause_sfx.wav')
+        self.opacity = 0
         self.black_surf = pygame.Surface((WINDOW_SIZE[0], WINDOW_SIZE[1]))
-        self.black_surf.set_alpha(80)
-
+        self.y_start = -cell_size * 9
+        self.x_start = cell_size * 4
+        self.menu_rect = pygame.Rect(self.x_start, self.y_start, cell_size * 7, cell_size * 9)
+        self.menu_vel = 0
+        self.menu_accel = 2
+        
     def draw_elements(self):
+        self.black_surf.set_alpha(self.opacity)
         window.blit(self.black_surf, (0,0))
+        pygame.draw.rect(window, 'red', self.menu_rect)
+        if self.opacity < 80:
+            self.opacity += 4
+        if self.menu_rect.topleft[1] < cell_size * 5:
+            pos_y = self.menu_rect.topleft[1]
+            self.menu_rect.topleft = (cell_size * 4, pos_y + self.menu_vel)
+            if self.menu_vel < 35:
+                self.menu_vel += self.menu_accel
+            else:
+                self.menu_vel -= self.menu_accel
+
 
 pygame.init() # initiates pygame
 pygame.mixer.pre_init(44100,-16,2, 512)
@@ -379,9 +397,11 @@ while open: # game loop
             if event.key == K_ESCAPE:
                 if game_state.is_running():
                     game_state.current_state = game_state.states[2]
+                    pause_menu.pause_sfx.play()
                     pygame.mixer.music.pause()
                 elif game_state.is_pause():
                     game_state.current_state = game_state.states[1]
+                    pause_menu.unpause_sfx.play()
                     pygame.mixer.music.unpause()
 
     main_game.particle_system.spawn_particles()
@@ -395,6 +415,9 @@ while open: # game loop
 
     if game_state.is_running():
         current_time = main_game.update()
+        pause_menu.opacity = 0
+        pause_menu.menu_vel = 0
+        pause_menu.menu_rect.topleft = (pause_menu.x_start, pause_menu.y_start)
     
     if game_state.is_pause():
         pause_menu.draw_elements()
